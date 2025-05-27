@@ -9,14 +9,30 @@ interface ScoreDistributionChartProps {
 }
 
 export const ScoreDistributionChart = ({ data }: ScoreDistributionChartProps) => {
-  // Filtrar dados válidos
-  const validData = data.filter(item => 
-    !isNaN(item.score) && 
-    !isNaN(item.count) && 
-    isFinite(item.score) && 
-    isFinite(item.count) &&
-    item.count >= 0
-  );
+  console.log('ScoreDistributionChart data received:', data);
+  
+  // Filtrar e validar dados de forma mais rigorosa
+  const validData = data
+    .filter(item => {
+      const isValidScore = typeof item.score === 'number' && 
+                          !isNaN(item.score) && 
+                          isFinite(item.score) &&
+                          item.score >= 0 && 
+                          item.score <= 10;
+      const isValidCount = typeof item.count === 'number' && 
+                          !isNaN(item.count) && 
+                          isFinite(item.count) &&
+                          item.count >= 0;
+      
+      console.log(`Validating score item:`, item, { isValidScore, isValidCount });
+      return isValidScore && isValidCount;
+    })
+    .map(item => ({
+      score: item.score,
+      count: Math.max(0, item.count) // Garantir que count nunca seja negativo
+    }));
+
+  console.log('ScoreDistributionChart processed data:', validData);
 
   // Se não há dados válidos, mostrar mensagem
   if (validData.length === 0) {

@@ -10,15 +10,34 @@ interface GroupRankingChartProps {
 }
 
 export const GroupRankingChart = ({ data }: GroupRankingChartProps) => {
-  // Filtrar dados válidos e ordenar por média decrescente
-  const validData = data.filter(item => 
-    !isNaN(item.average) && 
-    isFinite(item.average) && 
-    item.average >= 0 && 
-    item.average <= 10
-  );
+  console.log('GroupRankingChart data received:', data);
+  
+  // Filtrar e validar dados de forma mais rigorosa
+  const validData = data
+    .filter(item => {
+      const isValidGroup = item.group && typeof item.group === 'string' && item.group.trim() !== '';
+      const isValidAverage = typeof item.average === 'number' && 
+                           !isNaN(item.average) && 
+                           isFinite(item.average) && 
+                           item.average >= 0 && 
+                           item.average <= 10;
+      const isValidRatings = typeof item.totalRatings === 'number' && 
+                            !isNaN(item.totalRatings) && 
+                            isFinite(item.totalRatings) && 
+                            item.totalRatings >= 0;
+      
+      console.log(`Validating item:`, item, { isValidGroup, isValidAverage, isValidRatings });
+      return isValidGroup && isValidAverage && isValidRatings;
+    })
+    .map(item => ({
+      group: item.group,
+      average: Number(item.average.toFixed(1)), // Garantir que é um número válido
+      totalRatings: item.totalRatings
+    }));
   
   const sortedData = [...validData].sort((a, b) => b.average - a.average);
+  
+  console.log('GroupRankingChart processed data:', sortedData);
   
   // Se não há dados válidos, mostrar mensagem
   if (sortedData.length === 0) {
