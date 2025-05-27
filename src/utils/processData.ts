@@ -53,28 +53,33 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
     return { score, count };
   });
 
-  // Ranking dos grupos - com validação para evitar NaN
+  // Ranking dos grupos - com validação rigorosa para evitar NaN
   const groupRankings = Object.entries(groupAverages)
     .map(([grupo, stats]) => {
-      const average = stats.count > 0 ? stats.total / stats.count : 0;
+      const rawAverage = stats.count > 0 ? stats.total / stats.count : 0;
+      // Garantir que o valor é um número válido
+      const safeAverage = isNaN(rawAverage) || !isFinite(rawAverage) ? 0 : rawAverage;
       return {
         group: grupo,
-        average: Number(isNaN(average) || !isFinite(average) ? 0 : average.toFixed(1)),
+        average: Math.round(safeAverage * 10) / 10, // Arredondamento seguro para 1 casa decimal
         totalRatings: stats.count
       };
     })
-    .filter(item => !isNaN(item.average) && isFinite(item.average))
+    .filter(item => !isNaN(item.average) && isFinite(item.average) && item.average >= 0)
     .sort((a, b) => b.average - a.average);
 
   const bestGroupAverage = groupRankings.length > 0 ? groupRankings[0].average : 0;
 
+  // Garantir que averageScore é seguro
+  const safeAverageScore = isNaN(averageScore) || !isFinite(averageScore) ? 0 : averageScore;
+
   return {
     totalRatings,
-    averageScore: Number(isNaN(averageScore) || !isFinite(averageScore) ? 0 : averageScore.toFixed(1)),
+    averageScore: Math.round(safeAverageScore * 10) / 10,
     bestGroup,
     activeGroups,
     scoreDistribution,
     groupRankings,
-    bestGroupAverage: Number(isNaN(bestGroupAverage) || !isFinite(bestGroupAverage) ? 0 : bestGroupAverage)
+    bestGroupAverage: Math.round(bestGroupAverage * 10) / 10
   };
 };
