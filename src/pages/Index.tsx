@@ -2,7 +2,6 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MetricsCard } from "@/components/MetricsCard";
 import { ScoreDistributionChart } from "@/components/ScoreDistributionChart";
-import { GroupRankingChart } from "@/components/GroupRankingChart";
 import { Users, ChartBar, MessageSquare, Table } from "lucide-react";
 import { useSatisfacaoData } from "@/hooks/useSatisfacaoData";
 import { processMetricsData } from "@/utils/processData";
@@ -76,12 +75,9 @@ const Index = () => {
           />
         </div>
 
-        {/* Gráficos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Gráfico de Distribuição */}
+        <div className="mb-8">
           <ScoreDistributionChart data={processedData.scoreDistribution} />
-          <div className="lg:row-span-2">
-            <GroupRankingChart data={processedData.groupRankings} />
-          </div>
         </div>
 
         {/* Estatísticas Adicionais */}
