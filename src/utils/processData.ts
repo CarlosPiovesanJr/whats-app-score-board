@@ -14,7 +14,8 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
     item.nota_convertida !== null && 
     item.grupo !== null &&
     item.nota_convertida >= 0 && 
-    item.nota_convertida <= 10
+    item.nota_convertida <= 10 &&
+    !isNaN(item.nota_convertida)
   );
 
   console.log('Dados válidos processados:', validData.length);
@@ -39,6 +40,7 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
   const bestGroup = Object.entries(groupAverages).length > 0
     ? Object.entries(groupAverages)
         .map(([grupo, stats]) => ({ grupo, average: stats.total / stats.count }))
+        .filter(item => !isNaN(item.average) && isFinite(item.average))
         .sort((a, b) => b.average - a.average)[0]?.grupo || "N/A"
     : "N/A";
 
@@ -51,22 +53,28 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
     return { score, count };
   });
 
-  // Ranking dos grupos
+  // Ranking dos grupos - com validação para evitar NaN
   const groupRankings = Object.entries(groupAverages)
-    .map(([grupo, stats]) => ({
-      group: grupo,
-      average: Number((stats.total / stats.count).toFixed(1)),
-      totalRatings: stats.count
-    }))
+    .map(([grupo, stats]) => {
+      const average = stats.count > 0 ? stats.total / stats.count : 0;
+      return {
+        group: grupo,
+        average: Number(isNaN(average) || !isFinite(average) ? 0 : average.toFixed(1)),
+        totalRatings: stats.count
+      };
+    })
+    .filter(item => !isNaN(item.average) && isFinite(item.average))
     .sort((a, b) => b.average - a.average);
+
+  const bestGroupAverage = groupRankings.length > 0 ? groupRankings[0].average : 0;
 
   return {
     totalRatings,
-    averageScore: Number(averageScore.toFixed(1)),
+    averageScore: Number(isNaN(averageScore) || !isFinite(averageScore) ? 0 : averageScore.toFixed(1)),
     bestGroup,
     activeGroups,
     scoreDistribution,
     groupRankings,
-    bestGroupAverage: groupRankings[0]?.average || 0
+    bestGroupAverage: Number(isNaN(bestGroupAverage) || !isFinite(bestGroupAverage) ? 0 : bestGroupAverage)
   };
 };

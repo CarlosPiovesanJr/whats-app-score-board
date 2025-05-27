@@ -10,8 +10,27 @@ interface GroupRankingChartProps {
 }
 
 export const GroupRankingChart = ({ data }: GroupRankingChartProps) => {
-  // Ordenar por média decrescente
-  const sortedData = [...data].sort((a, b) => b.average - a.average);
+  // Filtrar dados válidos e ordenar por média decrescente
+  const validData = data.filter(item => 
+    !isNaN(item.average) && 
+    isFinite(item.average) && 
+    item.average >= 0 && 
+    item.average <= 10
+  );
+  
+  const sortedData = [...validData].sort((a, b) => b.average - a.average);
+  
+  // Se não há dados válidos, mostrar mensagem
+  if (sortedData.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg border border-purple-200 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Ranking dos Grupos</h3>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          Nenhum dado disponível para exibir
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="bg-white p-6 rounded-lg border border-purple-200 shadow-sm">

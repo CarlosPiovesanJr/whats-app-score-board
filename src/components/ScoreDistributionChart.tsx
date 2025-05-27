@@ -9,11 +9,32 @@ interface ScoreDistributionChartProps {
 }
 
 export const ScoreDistributionChart = ({ data }: ScoreDistributionChartProps) => {
+  // Filtrar dados válidos
+  const validData = data.filter(item => 
+    !isNaN(item.score) && 
+    !isNaN(item.count) && 
+    isFinite(item.score) && 
+    isFinite(item.count) &&
+    item.count >= 0
+  );
+
+  // Se não há dados válidos, mostrar mensagem
+  if (validData.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg border border-purple-200 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Distribuição de Notas</h3>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          Nenhum dado disponível para exibir
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white p-6 rounded-lg border border-purple-200 shadow-sm">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Distribuição de Notas</h3>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <BarChart data={validData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis 
             dataKey="score" 
