@@ -31,7 +31,7 @@ export const GroupRankingChart = ({ data }: GroupRankingChartProps) => {
     })
     .map(item => ({
       group: item.group,
-      average: Number(item.average.toFixed(1)), // Garantir que é um número válido
+      average: Math.round(item.average * 10) / 10, // Garantir arredondamento seguro
       totalRatings: item.totalRatings
     }));
   
@@ -50,6 +50,12 @@ export const GroupRankingChart = ({ data }: GroupRankingChartProps) => {
       </div>
     );
   }
+
+  // Calcular domínio dinâmico baseado nos dados
+  const maxValue = Math.max(...sortedData.map(item => item.average));
+  const minValue = Math.min(...sortedData.map(item => item.average));
+  const domainMax = Math.min(10, Math.ceil(maxValue + 1));
+  const domainMin = Math.max(0, Math.floor(minValue - 0.5));
   
   return (
     <div className="bg-white p-6 rounded-lg border border-purple-200 shadow-sm">
@@ -63,7 +69,8 @@ export const GroupRankingChart = ({ data }: GroupRankingChartProps) => {
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis 
             type="number"
-            domain={[0, 10]}
+            domain={[domainMin, domainMax]}
+            tickCount={6}
             stroke="#666"
             tick={{ fill: '#666' }}
           />
