@@ -11,10 +11,10 @@ const Index = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-900 p-4 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-purple-600">Carregando dados...</p>
+          <p className="text-purple-600 dark:text-purple-400">Carregando dados...</p>
         </div>
       </div>
     );
@@ -22,8 +22,8 @@ const Index = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 p-4 flex items-center justify-center">
-        <div className="text-center text-red-600">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-900 p-4 flex items-center justify-center">
+        <div className="text-center text-red-600 dark:text-red-400">
           <p>Erro ao carregar dados: {error.message}</p>
         </div>
       </div>
@@ -32,6 +32,7 @@ const Index = () => {
 
   const processedData = data ? processMetricsData(data) : {
     totalRatings: 0,
+    uniqueVoters: 0,
     averageScore: 0,
     bestGroup: "N/A",
     activeGroups: 0,
@@ -41,7 +42,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-900 p-4">
       <div className="max-w-7xl mx-auto">
         <DashboardHeader />
         
@@ -50,21 +51,21 @@ const Index = () => {
           <MetricsCard
             title="Total de Avaliações"
             value={processedData.totalRatings.toLocaleString()}
-            subtitle="Registradas"
+            subtitle={`${processedData.uniqueVoters > 0 ? processedData.uniqueVoters + ' pessoas votaram' : 'Registradas'}`}
             icon={<Table size={20} />}
             trend={processedData.totalRatings > 0 ? { value: 12, isPositive: true } : undefined}
           />
           <MetricsCard
-            title="Nota Média Geral"
-            value={processedData.averageScore.toFixed(1)}
-            subtitle="De 0 a 10"
+            title="Satisfação Média"
+            value={`${processedData.averageScore.toFixed(1)}%`}
+            subtitle="De 0% a 100%"
             icon={<ChartBar size={20} />}
             trend={processedData.averageScore > 0 ? { value: 5, isPositive: true } : undefined}
           />
           <MetricsCard
             title="Melhor Grupo"
             value={processedData.bestGroup}
-            subtitle={`Média: ${processedData.bestGroupAverage}`}
+            subtitle={`Média: ${processedData.bestGroupAverage}%`}
             icon={<MessageSquare size={20} />}
           />
           <MetricsCard
@@ -82,26 +83,26 @@ const Index = () => {
 
         {/* Estatísticas Adicionais */}
         {processedData.totalRatings > 0 && (
-          <div className="bg-white p-6 rounded-lg border border-purple-200 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Resumo Executivo</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-purple-200 dark:border-gray-600 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Resumo Executivo</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
-                  {Math.round((processedData.scoreDistribution.filter(d => d.score >= 8).reduce((acc, d) => acc + d.count, 0) / processedData.totalRatings) * 100)}%
+              <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  {Math.round((processedData.scoreDistribution.filter(d => d.score >= 80).reduce((acc, d) => acc + d.count, 0) / processedData.totalRatings) * 100)}%
                 </div>
-                <div className="text-sm text-gray-600">Avaliações Positivas (8-10)</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Avaliações Positivas (80-100%)</div>
               </div>
-              <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-600">
-                  {Math.round((processedData.scoreDistribution.filter(d => d.score >= 6 && d.score < 8).reduce((acc, d) => acc + d.count, 0) / processedData.totalRatings) * 100)}%
+              <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                  {Math.round((processedData.scoreDistribution.filter(d => d.score >= 60 && d.score < 80).reduce((acc, d) => acc + d.count, 0) / processedData.totalRatings) * 100)}%
                 </div>
-                <div className="text-sm text-gray-600">Avaliações Neutras (6-7)</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Avaliações Neutras (60-79%)</div>
               </div>
-              <div className="text-center p-4 bg-red-50 rounded-lg">
-                <div className="text-2xl font-bold text-red-600">
-                  {Math.round((processedData.scoreDistribution.filter(d => d.score < 6).reduce((acc, d) => acc + d.count, 0) / processedData.totalRatings) * 100)}%
+              <div className="text-center p-4 bg-red-50 dark:bg-red-900/30 rounded-lg">
+                <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                  {Math.round((processedData.scoreDistribution.filter(d => d.score < 60).reduce((acc, d) => acc + d.count, 0) / processedData.totalRatings) * 100)}%
                 </div>
-                <div className="text-sm text-gray-600">Avaliações Negativas (0-5)</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Avaliações Negativas (0-59%)</div>
               </div>
             </div>
           </div>
