@@ -16,6 +16,7 @@ export type Database = {
           grupo: string | null
           id: number
           nota_convertida: number | null
+          participantPhone: string | null
           usuario: string | null
         }
         Insert: {
@@ -24,6 +25,7 @@ export type Database = {
           grupo?: string | null
           id?: number
           nota_convertida?: number | null
+          participantPhone?: string | null
           usuario?: string | null
         }
         Update: {
@@ -32,6 +34,7 @@ export type Database = {
           grupo?: string | null
           id?: number
           nota_convertida?: number | null
+          participantPhone?: string | null
           usuario?: string | null
         }
         Relationships: []

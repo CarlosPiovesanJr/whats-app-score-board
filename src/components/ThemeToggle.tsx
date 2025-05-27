@@ -1,5 +1,5 @@
 
-import { Moon, percent } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const ThemeToggle = () => {
@@ -35,12 +35,17 @@ export const ThemeToggle = () => {
       className="p-2 rounded-lg bg-white dark:bg-gray-800 border border-purple-200 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors"
       aria-label="Alternar tema"
     >
-      <Moon 
-        size={20} 
-        className={`transition-colors ${
-          isDark ? 'text-yellow-400' : 'text-gray-600'
-        }`}
-      />
+      {isDark ? (
+        <Sun 
+          size={20} 
+          className="text-yellow-400 transition-colors"
+        />
+      ) : (
+        <Moon 
+          size={20} 
+          className="text-gray-600 transition-colors"
+        />
+      )}
     </button>
   );
 };
