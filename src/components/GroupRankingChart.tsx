@@ -14,7 +14,7 @@ export const GroupRankingChart = ({ data }: GroupRankingChartProps) => {
   const sortedData = [...data].sort((a, b) => b.average - a.average);
   
   return (
-    <div className="bg-white p-6 rounded-lg border border-green-200 shadow-sm">
+    <div className="bg-white p-6 rounded-lg border border-purple-200 shadow-sm">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Ranking dos Grupos</h3>
       <ResponsiveContainer width="100%" height={400}>
         <BarChart 
@@ -51,7 +51,7 @@ export const GroupRankingChart = ({ data }: GroupRankingChartProps) => {
           />
           <Bar 
             dataKey="average" 
-            fill="#16a34a"
+            fill="#7c3aed"
             radius={[0, 4, 4, 0]}
             className="hover:opacity-80 transition-opacity"
           />

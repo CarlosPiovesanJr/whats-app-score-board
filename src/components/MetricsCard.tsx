@@ -14,10 +14,10 @@ interface MetricsCardProps {
 
 export const MetricsCard = ({ title, value, subtitle, icon, trend }: MetricsCardProps) => {
   return (
-    <Card className="bg-gradient-to-br from-white to-green-50 border-green-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+    <Card className="bg-gradient-to-br from-white to-purple-50 border-purple-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
-        {icon && <div className="text-green-600">{icon}</div>}
+        {icon && <div className="text-purple-600">{icon}</div>}
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-gray-900">{value}</div>
@@ -26,7 +26,7 @@ export const MetricsCard = ({ title, value, subtitle, icon, trend }: MetricsCard
         )}
         {trend && (
           <div className={`text-xs mt-2 flex items-center ${
-            trend.isPositive ? 'text-green-600' : 'text-red-600'
+            trend.isPositive ? 'text-purple-600' : 'text-red-600'
           }`}>
             <span className="mr-1">
               {trend.isPositive ? '↗' : '↘'}

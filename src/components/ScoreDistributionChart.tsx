@@ -10,7 +10,7 @@ interface ScoreDistributionChartProps {
 
 export const ScoreDistributionChart = ({ data }: ScoreDistributionChartProps) => {
   return (
-    <div className="bg-white p-6 rounded-lg border border-green-200 shadow-sm">
+    <div className="bg-white p-6 rounded-lg border border-purple-200 shadow-sm">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Distribuição de Notas</h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -36,7 +36,7 @@ export const ScoreDistributionChart = ({ data }: ScoreDistributionChartProps) =>
           />
           <Bar 
             dataKey="count" 
-            fill="#22c55e"
+            fill="#9333ea"
             radius={[4, 4, 0, 0]}
             className="hover:opacity-80 transition-opacity"
           />
