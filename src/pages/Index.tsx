@@ -1,7 +1,7 @@
-
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { MetricsCard } from "@/components/MetricsCard";
 import { ScoreDistributionChart } from "@/components/ScoreDistributionChart";
+import { ChatPopup } from "@/components/ChatPopup";
 import { Users, ChartBar, MessageSquare, Table } from "lucide-react";
 import { useSatisfacaoData } from "@/hooks/useSatisfacaoData";
 import { processMetricsData } from "@/utils/processData";
@@ -108,6 +108,9 @@ const Index = () => {
           </div>
         )}
       </div>
+      
+      {/* Chat popup */}
+      <ChatPopup />
     </div>
   );
 };
