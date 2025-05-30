@@ -7,28 +7,40 @@ import { NpsView } from "@/components/NpsView";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-900 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <DashboardHeader />
         
-        {/* Tabs para alternar entre as visualizações */}
-        <Tabs defaultValue="whatsapp" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="whatsapp">Grupos WhatsApp</TabsTrigger>
-            <TabsTrigger value="nps">Avaliações NPS</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="whatsapp">
-            <WhatsAppView />
-          </TabsContent>
-          
-          <TabsContent value="nps">
-            <NpsView />
-          </TabsContent>
-        </Tabs>
+        <div className="py-8">
+          <Tabs defaultValue="whatsapp" className="w-full">
+            <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
+              <TabsList className="grid w-full max-w-md grid-cols-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                <TabsTrigger 
+                  value="whatsapp" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm font-medium"
+                >
+                  Grupos WhatsApp
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="nps"
+                  className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm font-medium"
+                >
+                  Avaliações NPS
+                </TabsTrigger>
+              </TabsList>
+            </div>
+            
+            <TabsContent value="whatsapp" className="mt-0">
+              <WhatsAppView />
+            </TabsContent>
+            
+            <TabsContent value="nps" className="mt-0">
+              <NpsView />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
       
-      {/* Chat popup */}
       <ChatPopup />
     </div>
   );

@@ -1,3 +1,4 @@
+
 import {
   BarChart,
   Bar,
@@ -45,58 +46,64 @@ export const ScoreDistributionChart = ({
 
   if (validData.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-purple-200 dark:border-gray-600 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
           Distribuição de Notas (%)
         </h3>
         <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-          Nenhum dado disponível para exibir
+          <div className="text-center">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg mx-auto mb-3 flex items-center justify-center">
+              📊
+            </div>
+            <p>Nenhum dado disponível para exibir</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-purple-200 dark:border-gray-600 shadow-sm">
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
         Distribuição de Notas (%)
       </h3>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={350}>
         <BarChart
           data={validData}
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="#f0f0f0"
+            stroke="#e5e7eb"
             className="dark:stroke-gray-600"
           />
           <XAxis
             dataKey="score"
-            stroke="#666"
-            tick={{ fill: "#666" }}
-            className="dark:stroke-gray-300"
+            stroke="#6b7280"
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            className="dark:stroke-gray-400"
             tickFormatter={(value) => `${value}%`}
           />
           <YAxis
-            stroke="#666"
-            tick={{ fill: "#666" }}
-            className="dark:stroke-gray-300"
+            stroke="#6b7280"
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            className="dark:stroke-gray-400"
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "var(--background)",
-              border: "1px solid var(--border)",
+              backgroundColor: "white",
+              border: "1px solid #e5e7eb",
               borderRadius: "8px",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              fontSize: "14px",
             }}
             formatter={(value) => [`${value} avaliações`, "Quantidade"]}
             labelFormatter={(label) => `Nota: ${label}%`}
           />
           <Bar
             dataKey="count"
-            fill="#9333ea"
-            radius={[4, 4, 0, 0]}
+            fill="#2563eb"
+            radius={[6, 6, 0, 0]}
             className="hover:opacity-80 transition-opacity"
           />
         </BarChart>
