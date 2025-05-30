@@ -1,4 +1,3 @@
-
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -7,25 +6,27 @@ export const ThemeToggle = () => {
 
   useEffect(() => {
     // Verificar se há preferência salva
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
       setIsDark(true);
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     }
   }, []);
 
   const toggleTheme = () => {
     const newIsDark = !isDark;
     setIsDark(newIsDark);
-    
+
     if (newIsDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   };
 
@@ -36,15 +37,9 @@ export const ThemeToggle = () => {
       aria-label="Alternar tema"
     >
       {isDark ? (
-        <Sun 
-          size={20} 
-          className="text-yellow-400 transition-colors"
-        />
+        <Sun size={20} className="text-yellow-400 transition-colors" />
       ) : (
-        <Moon 
-          size={20} 
-          className="text-gray-600 transition-colors"
-        />
+        <Moon size={20} className="text-gray-600 transition-colors" />
       )}
     </button>
   );

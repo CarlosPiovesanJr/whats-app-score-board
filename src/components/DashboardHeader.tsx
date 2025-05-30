@@ -1,4 +1,3 @@
-
 import { MessageSquare } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -10,7 +9,9 @@ export const DashboardHeader = () => {
           <MessageSquare size={32} />
           <div>
             <h1 className="text-3xl font-bold">Dashboard de Atendimento</h1>
-            <p className="text-purple-100 mt-1">Métricas de avaliação dos grupos WhatsApp</p>
+            <p className="text-purple-100 mt-1">
+              Métricas de avaliação dos grupos WhatsApp
+            </p>
           </div>
         </div>
         <ThemeToggle />
