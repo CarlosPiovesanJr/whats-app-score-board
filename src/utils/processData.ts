@@ -20,14 +20,6 @@ const getEmojiFromNota = (nota: number): string => {
   }
 };
 
-// Classificação das avaliações
-const getAvaliacaoType = (nota: number): 'positive' | 'neutral' | 'negative' => {
-  if (nota >= 8) return 'positive'; // 4 e 5 (😀 e 🤩)
-  if (nota === 6) return 'neutral'; // 3 (😐)
-  if (nota === 4) return 'neutral'; // 2 (🙁)
-  return 'negative'; // 1 (😠)
-};
-
 export const processMetricsData = (data: SatisfacaoData[]) => {
   // Filtrar apenas dados válidos
   const validData = data.filter(item => 
@@ -50,15 +42,15 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
       .map(item => item.usuario!)
   ).size;
 
-  // Calcular DSAT - todas as notas 1, 2 e 3 são consideradas negativas
-  const negativeRatings = validData.filter(item => item.nota_convertida! <= 6).length;
-  const dsatScore = totalRatings > 0 ? (negativeRatings / totalRatings) * 100 : 0;
+  // Calcular CSAT - apenas notas 4 (😀) e 5 (🤩) são consideradas positivas
+  const positiveRatings = validData.filter(item => item.nota_convertida! >= 8).length; // notas 4 e 5
+  const csatScore = totalRatings > 0 ? (positiveRatings / totalRatings) * 100 : 0;
 
-  // Calcular satisfação média baseada na nova lógica
-  const positiveRatings = validData.filter(item => item.nota_convertida! >= 8).length;
-  const satisfactionScore = totalRatings > 0 ? (positiveRatings / totalRatings) * 100 : 0;
+  // Contadores para análise
+  const negativeRatings = validData.filter(item => item.nota_convertida! === 2).length; // nota 1
+  const neutralRatings = validData.filter(item => item.nota_convertida! === 4 || item.nota_convertida! === 6).length; // notas 2 e 3
 
-  // Encontrar melhor grupo
+  // Encontrar melhor grupo baseado em maior CSAT
   const groupAverages = validData.reduce((acc, item) => {
     const grupo = item.grupo!;
     if (!acc[grupo]) {
@@ -67,6 +59,7 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
         count: 0, 
         positive: 0, 
         negative: 0,
+        neutral: 0,
         ratings: [] 
       };
     }
@@ -74,8 +67,9 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
     acc[grupo].count += 1;
     acc[grupo].ratings.push(item.nota_convertida!);
     
-    if (item.nota_convertida! >= 8) acc[grupo].positive += 1;
-    if (item.nota_convertida! <= 6) acc[grupo].negative += 1;
+    if (item.nota_convertida! >= 8) acc[grupo].positive += 1; // notas 4 e 5
+    if (item.nota_convertida! === 2) acc[grupo].negative += 1; // nota 1
+    if (item.nota_convertida! === 4 || item.nota_convertida! === 6) acc[grupo].neutral += 1; // notas 2 e 3
     
     return acc;
   }, {} as Record<string, { 
@@ -83,19 +77,21 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
     count: number; 
     positive: number; 
     negative: number;
+    neutral: number;
     ratings: number[];
   }>);
 
-  // Melhor grupo baseado em menor DSAT
+  // Melhor grupo baseado em maior CSAT
   const bestGroup = Object.entries(groupAverages).length > 0
     ? Object.entries(groupAverages)
         .map(([grupo, stats]) => ({ 
           grupo, 
-          dsat: (stats.negative / stats.count) * 100,
-          satisfaction: (stats.positive / stats.count) * 100
+          csat: (stats.positive / stats.count) * 100,
+          positiveCount: stats.positive,
+          totalCount: stats.count
         }))
-        .filter(item => !isNaN(item.dsat) && isFinite(item.dsat))
-        .sort((a, b) => a.dsat - b.dsat)[0]?.grupo || "N/A"
+        .filter(item => !isNaN(item.csat) && isFinite(item.csat))
+        .sort((a, b) => b.csat - a.csat)[0]?.grupo || "N/A"
     : "N/A";
 
   const activeGroups = Object.keys(groupAverages).length;
@@ -114,37 +110,35 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
   const groupRankings = Object.entries(groupAverages)
     .map(([grupo, stats]) => {
       const averageNote = stats.count > 0 ? stats.total / stats.count : 0;
-      const dsat = stats.count > 0 ? (stats.negative / stats.count) * 100 : 0;
-      const satisfaction = stats.count > 0 ? (stats.positive / stats.count) * 100 : 0;
+      const csat = stats.count > 0 ? (stats.positive / stats.count) * 100 : 0;
       const emoji = getEmojiFromNota(Math.round(averageNote));
       
       return {
         group: grupo,
         average: Math.round(averageNote * 10) / 10,
-        dsat: Math.round(dsat * 10) / 10,
-        satisfaction: Math.round(satisfaction * 10) / 10,
+        csat: Math.round(csat * 10) / 10,
         emoji: emoji,
-        totalRatings: stats.count
+        totalRatings: stats.count,
+        positiveRatings: stats.positive
       };
     })
     .filter(item => !isNaN(item.average) && isFinite(item.average) && item.average >= 0)
-    .sort((a, b) => a.dsat - b.dsat); // Ordenar por menor DSAT (melhor)
+    .sort((a, b) => b.csat - a.csat); // Ordenar por maior CSAT (melhor)
 
-  const bestGroupDsat = groupRankings.length > 0 ? groupRankings[0].dsat : 0;
-  const safeDsatScore = isNaN(dsatScore) || !isFinite(dsatScore) ? 0 : dsatScore;
-  const safeSatisfactionScore = isNaN(satisfactionScore) || !isFinite(satisfactionScore) ? 0 : satisfactionScore;
+  const bestGroupCsat = groupRankings.length > 0 ? groupRankings[0].csat : 0;
+  const safeCsatScore = isNaN(csatScore) || !isFinite(csatScore) ? 0 : csatScore;
 
   return {
     totalRatings,
     uniqueVoters,
-    dsatScore: Math.round(safeDsatScore * 10) / 10,
-    satisfactionScore: Math.round(safeSatisfactionScore * 10) / 10,
+    csatScore: Math.round(safeCsatScore * 10) / 10,
     bestGroup,
     activeGroups,
     scoreDistribution,
     groupRankings,
-    bestGroupDsat: Math.round(bestGroupDsat * 10) / 10,
+    bestGroupCsat: Math.round(bestGroupCsat * 10) / 10,
     negativeRatings,
-    positiveRatings
+    positiveRatings,
+    neutralRatings
   };
 };
