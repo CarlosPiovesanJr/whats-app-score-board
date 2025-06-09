@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      avaliacoes_enviadas: {
+        Row: {
+          data: string
+          enviado_em: string | null
+          id: number
+          id_grupo: string
+        }
+        Insert: {
+          data: string
+          enviado_em?: string | null
+          id?: number
+          id_grupo: string
+        }
+        Update: {
+          data?: string
+          enviado_em?: string | null
+          id?: number
+          id_grupo?: string
+        }
+        Relationships: []
+      }
+      chamados_whatsapp: {
+        Row: {
+          atendente: string
+          chave_unica: string
+          created_at: string
+          data: string
+          grupo: string
+          id: number
+          id_grupo: string | null
+          telefone: string
+        }
+        Insert: {
+          atendente: string
+          chave_unica: string
+          created_at?: string
+          data: string
+          grupo: string
+          id?: number
+          id_grupo?: string | null
+          telefone: string
+        }
+        Update: {
+          atendente?: string
+          chave_unica?: string
+          created_at?: string
+          data?: string
+          grupo?: string
+          id?: number
+          id_grupo?: string | null
+          telefone?: string
+        }
+        Relationships: []
+      }
       formulario_suporte: {
         Row: {
           created_at: string
@@ -74,7 +128,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      relatorio_interacoes_diario: {
+        Row: {
+          atendente: string | null
+          data: string | null
+          grupo: string | null
+          telefone: string | null
+          total_interacoes: number | null
+        }
+        Relationships: []
+      }
+      relatorio_interacoes_diario_atendimento: {
+        Row: {
+          atendente: string | null
+          data: string | null
+          telefone: string | null
+          total_atendimentos: number | null
+          total_ponderado: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

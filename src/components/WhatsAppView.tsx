@@ -1,12 +1,23 @@
 
 import { MetricsCard } from "@/components/MetricsCard";
 import { ScoreDistributionChart } from "@/components/ScoreDistributionChart";
+import { DateFilters } from "@/components/DateFilters";
 import { Users, ChartBar, MessageSquare, Table, TrendingUp } from "lucide-react";
 import { useSatisfacaoData } from "@/hooks/useSatisfacaoData";
 import { processMetricsData } from "@/utils/processData";
+import { useState } from "react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export const WhatsAppView = () => {
   const { data, isLoading, error } = useSatisfacaoData();
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+
+  const handleResetFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+  };
 
   if (isLoading) {
     return (
@@ -30,14 +41,14 @@ export const WhatsAppView = () => {
     );
   }
 
-  const processedData = data ? processMetricsData(data) : {
+  const processedData = data ? processMetricsData(data, startDate, endDate) : {
     totalRatings: 0,
     uniqueVoters: 0,
     csatScore: 0,
     bestGroup: "N/A",
     activeGroups: 0,
     scoreDistribution: [],
-    groupRankings: [],
+    recentGroups: [],
     bestGroupCsat: 0,
     negativeRatings: 0,
     positiveRatings: 0,
@@ -46,6 +57,15 @@ export const WhatsAppView = () => {
 
   return (
     <div className="space-y-8">
+      {/* Filtros de Data */}
+      <DateFilters
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={setStartDate}
+        onEndDateChange={setEndDate}
+        onReset={handleResetFilters}
+      />
+
       {/* Cards de Métricas dos Grupos */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricsCard
@@ -83,33 +103,38 @@ export const WhatsAppView = () => {
 
       {/* Layout em duas colunas para desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Ranking dos Grupos */}
+        {/* Últimos Grupos com Avaliações */}
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Ranking dos Grupos</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Últimos Grupos com Avaliações</h3>
           <div className="space-y-3">
-            {processedData.groupRankings.slice(0, 8).map((group, index) => (
-              <div key={group.group} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white ${
-                    index === 0 ? 'bg-yellow-500' :
-                    index === 1 ? 'bg-gray-400' :
-                    index === 2 ? 'bg-amber-600' :
-                    'bg-blue-600'
-                  }`}>
-                    {index + 1}
+            {processedData.recentGroups.length > 0 ? (
+              processedData.recentGroups.map((group, index) => (
+                <div key={group.group} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-3xl">
+                      {group.emoji}
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">{group.group}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {group.totalRatings} avaliações • Última: {format(group.lastEvaluationDate, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{group.group}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {group.totalRatings} avaliações • CSAT: {group.csat}%
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      Média: {group.average}
                     </div>
                   </div>
                 </div>
-                <div className="text-3xl">
-                  {group.emoji}
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-gray-400 dark:text-gray-500 text-sm">
+                  Nenhum grupo encontrado no período selecionado
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
 

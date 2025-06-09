@@ -20,9 +20,32 @@ const getEmojiFromNota = (nota: number): string => {
   }
 };
 
-export const processMetricsData = (data: SatisfacaoData[]) => {
+export const processMetricsData = (data: SatisfacaoData[], startDate?: Date, endDate?: Date) => {
+  // Filtrar dados por data se fornecidas
+  let filteredData = data;
+  
+  if (startDate || endDate) {
+    filteredData = data.filter(item => {
+      const itemDate = new Date(item.created_at);
+      const itemDateOnly = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
+      
+      if (startDate && endDate) {
+        const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+        const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+        return itemDateOnly >= start && itemDateOnly <= end;
+      } else if (startDate) {
+        const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+        return itemDateOnly >= start;
+      } else if (endDate) {
+        const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+        return itemDateOnly <= end;
+      }
+      return true;
+    });
+  }
+
   // Filtrar apenas dados válidos
-  const validData = data.filter(item => 
+  const validData = filteredData.filter(item => 
     item.nota_convertida !== null && 
     item.grupo !== null &&
     item.nota_convertida >= 0 && 
@@ -60,12 +83,18 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
         positive: 0, 
         negative: 0,
         neutral: 0,
-        ratings: [] 
+        ratings: [],
+        lastEvaluation: item.created_at
       };
     }
     acc[grupo].total += item.nota_convertida!;
     acc[grupo].count += 1;
     acc[grupo].ratings.push(item.nota_convertida!);
+    
+    // Atualizar última avaliação se for mais recente
+    if (new Date(item.created_at) > new Date(acc[grupo].lastEvaluation)) {
+      acc[grupo].lastEvaluation = item.created_at;
+    }
     
     if (item.nota_convertida! >= 8) acc[grupo].positive += 1; // notas 4 e 5
     if (item.nota_convertida! === 2) acc[grupo].negative += 1; // nota 1
@@ -79,6 +108,7 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
     negative: number;
     neutral: number;
     ratings: number[];
+    lastEvaluation: string;
   }>);
 
   // Melhor grupo baseado em maior CSAT
@@ -106,26 +136,31 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
     { score: 100, count: validData.filter(item => item.nota_convertida === 10).length, emoji: "🤩" }
   ].filter(item => item.count > 0 || item.score === 60);
 
-  // Ranking dos grupos com emoji da média
-  const groupRankings = Object.entries(groupAverages)
+  // Últimos grupos com avaliações (ordenados por data mais recente)
+  const recentGroups = Object.entries(groupAverages)
     .map(([grupo, stats]) => {
       const averageNote = stats.count > 0 ? stats.total / stats.count : 0;
-      const csat = stats.count > 0 ? (stats.positive / stats.count) * 100 : 0;
       const emoji = getEmojiFromNota(Math.round(averageNote));
       
       return {
         group: grupo,
         average: Math.round(averageNote * 10) / 10,
-        csat: Math.round(csat * 10) / 10,
         emoji: emoji,
         totalRatings: stats.count,
-        positiveRatings: stats.positive
+        lastEvaluation: stats.lastEvaluation,
+        lastEvaluationDate: new Date(stats.lastEvaluation)
       };
     })
     .filter(item => !isNaN(item.average) && isFinite(item.average) && item.average >= 0)
-    .sort((a, b) => b.csat - a.csat); // Ordenar por maior CSAT (melhor)
+    .sort((a, b) => b.lastEvaluationDate.getTime() - a.lastEvaluationDate.getTime())
+    .slice(0, 8); // Mostrar apenas os 8 mais recentes
 
-  const bestGroupCsat = groupRankings.length > 0 ? groupRankings[0].csat : 0;
+  const bestGroupCsat = Object.entries(groupAverages).length > 0
+    ? Math.max(...Object.entries(groupAverages)
+        .map(([, stats]) => (stats.positive / stats.count) * 100)
+        .filter(csat => !isNaN(csat) && isFinite(csat))) || 0
+    : 0;
+
   const safeCsatScore = isNaN(csatScore) || !isFinite(csatScore) ? 0 : csatScore;
 
   return {
@@ -135,7 +170,7 @@ export const processMetricsData = (data: SatisfacaoData[]) => {
     bestGroup,
     activeGroups,
     scoreDistribution,
-    groupRankings,
+    recentGroups,
     bestGroupCsat: Math.round(bestGroupCsat * 10) / 10,
     negativeRatings,
     positiveRatings,
