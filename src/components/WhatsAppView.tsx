@@ -121,11 +121,6 @@ export const WhatsAppView = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      Média: {group.average}
-                    </div>
-                  </div>
                 </div>
               ))
             ) : (
