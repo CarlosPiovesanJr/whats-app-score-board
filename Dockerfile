@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copia apenas os arquivos necessários para instalar dependências primeiro (melhor cache)
 COPY package.json package-lock.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Agora copia o restante do código
 COPY . .
